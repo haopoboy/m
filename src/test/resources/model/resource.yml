@@ -1,0 +1,30 @@
+# Enable persisting
+persistent:
+  entity: io.github.haopoboy.m.entity.Resource
+  properties:
+    content:
+
+# Enable querying
+queries:
+  list:
+    jpql: >
+      select new Map(
+        r.name as name,
+        r.content as content
+      ) from Resource r
+    pivots:
+      current:
+        jpql: >
+          select new Map(
+            count(r) as count
+          ) from Resource r
+          where r.content = :content
+
+# For all queries
+pivots:
+  current:
+    jpql: >
+      select new Map(
+        count(r) as count
+      ) from Resource r
+      where r.content = :content

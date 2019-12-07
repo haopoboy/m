@@ -1,0 +1,30 @@
+# Enable querying
+queries:
+  list:
+    jpql: >
+      select new Map(
+        r.name as name,
+        r.content as content
+      ) from Resource r
+    pivots:
+      current:
+        jpql: >
+          select new Map(
+            count(r) as count
+          ) from Resource r
+          where r.content = :content
+  nativeList:
+    native: >
+      select
+        r.name as name,
+        r.content as content
+      from resource r
+
+# For all queries
+pivots:
+  current:
+    jpql: >
+      select new Map(
+        count(r) as count
+      ) from Resource r
+      where r.content = :content
