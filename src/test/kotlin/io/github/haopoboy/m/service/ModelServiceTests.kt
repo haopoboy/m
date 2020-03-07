@@ -68,7 +68,9 @@ class ModelServiceTests {
 
         impl.query(query).apply {
             assertThat(this.content).extracting("name").contains("resource", "resourceMultiple")
-            assertThat(this.content).extracting("state").isNotEmpty()
+            assertThat(this.content).extracting("state")
+                    .doesNotContainNull()
+                    .isNotEmpty()
         }
     }
 }
