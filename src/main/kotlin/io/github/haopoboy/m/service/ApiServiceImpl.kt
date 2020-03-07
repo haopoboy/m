@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 class ApiServiceImpl : ApiService {
 
     inner class Named(val name: String) : ApiService.Named {
-        override fun query(criteria: Map<String, Any>): Page = query(name, criteria)
+        override fun query(criteria: Map<String, Any>): Map<String, Page> = query(name, criteria)
     }
 
     @Autowired
@@ -21,7 +21,7 @@ class ApiServiceImpl : ApiService {
         return Named(name)
     }
 
-    override fun query(name: String, criteria: Map<String, Any>): Page {
+    override fun query(name: String, criteria: Map<String, Any>): Map<String, Page> {
         val definition = resourceService.getDefinition(name)
         return modelService.query(definition.queries)
     }

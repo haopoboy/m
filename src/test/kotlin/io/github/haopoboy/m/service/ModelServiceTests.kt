@@ -33,8 +33,8 @@ class ModelServiceTests {
         val queries = mutableMapOf("default" to Definition.Query.of("""
             select new map(r.name as name) from Resource r
         """.trimIndent()))
-        val page = impl.query(queries)
-        assertThat(page.content).extracting("name").contains("resource", "resourceMultiple")
+        val map = impl.query(queries)
+        assertThat(map.values.first()).extracting("name").contains("resource", "resourceMultiple")
     }
 
     @Test
@@ -45,7 +45,7 @@ class ModelServiceTests {
             select new map(r.name as name) from Resource r
         """.trimIndent()))
 
-        val map = impl.query(queries).content[0] as Map<String, Page>
+        val map = impl.query(queries)
         assertThat(map).containsKeys("first", "second")
 
         val first = map["first"] as Page
@@ -61,10 +61,8 @@ class ModelServiceTests {
         """.trimIndent()), "second" to Definition.Query.of("""
             select new map(r.name as name) from Resource r
         """.trimIndent()))
-        val first = impl.query(queries, listOf("first"))
-        assertThat(first.content).extracting("name").contains("resource", "resourceMultiple")
-
-        val second = impl.query(queries, listOf("first"))
-        assertThat(second.content).extracting("name").contains("resource", "resourceMultiple")
+        impl.query(queries).values.forEach {
+            assertThat(it.content).extracting("name").contains("resource", "resourceMultiple")
+        }
     }
 }

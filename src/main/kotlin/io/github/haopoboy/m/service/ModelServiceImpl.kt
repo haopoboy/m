@@ -13,19 +13,11 @@ class ModelServiceImpl : ModelService {
     @Autowired
     private lateinit var entityManager: EntityManager
 
-    override fun query(queries: Map<String, Definition.Query>, names: List<String>): Page {
-        val results = queries
-                .filter { names.isEmpty() || names.contains(it.key) }
+    override fun query(queries: Map<String, Definition.Query>): Map<String, Page> {
+        return queries
                 .map {
                     it.key to query(it.value)
                 }.toMap()
-
-        // Auto extract single result to the content
-        return if (results.size == 1) {
-            results.values.toList()[0]
-        } else {
-            Page(listOf(results))
-        }
     }
 
     override fun query(definition: Definition.Query, criteria: Map<String, Any>): Page {
