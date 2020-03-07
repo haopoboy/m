@@ -24,6 +24,7 @@ class Definition {
 
         var jpql: String = ""
         var native: String = ""
+        var extractFirst = false
         var pageable: Pageable = Pageable.unpaged()
         var pivots: Map<String, Query> = emptyMap()
     }

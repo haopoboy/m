@@ -55,14 +55,20 @@ class ModelServiceTests {
     }
 
     @Test
-    fun queryByName() {
-        val queries = mutableMapOf("first" to Definition.Query.of("""
+    fun queryWithPivots() {
+        val query = Definition.Query.of("""
             select new map(r.name as name) from Resource r
-        """.trimIndent()), "second" to Definition.Query.of("""
-            select new map(r.name as name) from Resource r
-        """.trimIndent()))
-        impl.query(queries).values.forEach {
-            assertThat(it.content).extracting("name").contains("resource", "resourceMultiple")
+        """.trimIndent()).apply {
+            val state = Definition.Query.of("""
+                select new map(count(r) AS count) from Resource r
+            """.trimIndent())
+            state.extractFirst = true
+            this.pivots = mapOf("state" to state)
+        }
+
+        impl.query(query).apply {
+            assertThat(this.content).extracting("name").contains("resource", "resourceMultiple")
+            assertThat(this.content).extracting("state").contains(mapOf("count" to 3L))
         }
     }
 }

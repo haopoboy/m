@@ -19,6 +19,7 @@ class ModelServiceImpl : ModelService {
                 .toMap()
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun query(definition: Definition.Query, criteria: Map<String, Any>): Page {
         // Query
         val query = if (!definition.jpql.isBlank()) {
@@ -37,11 +38,38 @@ class ModelServiceImpl : ModelService {
         // Criteria
         Queries.applyCriteria(query, criteria)
 
-        // Page
-        @Suppress("UNCHECKED_CAST")
-        val content = query.resultList as List<Any>
+        // Page with pivots
+        val content = injectPivots(
+                query.resultList as List<Map<String, Any>>,
+                criteria,
+                definition.pivots
+        )
         return Page(content, pageable, count(definition))
+    }
 
+    @Suppress("UNCHECKED_CAST")
+    fun injectPivots(content: List<Map<String, Any>>,
+                     criteria: Map<String, Any>,
+                     pivots: Map<String, Definition.Query>
+    ): List<Map<String, Any>> {
+        return content.map { row ->
+            val newCriteria = criteria.toMutableMap().apply {
+                this.putAll(row)
+            }
+
+            val mutableRow = row.toMutableMap()
+            pivots.forEach { (key, value) ->
+                val contentWithPivots = query(value, newCriteria).apply {
+                    injectPivots(this.content as List<Map<String, Any>>, newCriteria, value.pivots)
+                }
+                mutableRow[key] = if (value.extractFirst) {
+                    contentWithPivots.first()
+                } else {
+                    contentWithPivots.content
+                }
+            }
+            mutableRow.toMap()
+        }
     }
 
     fun count(query: Definition.Query): Long {
