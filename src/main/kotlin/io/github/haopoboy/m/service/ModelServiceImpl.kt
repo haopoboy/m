@@ -22,7 +22,7 @@ class ModelServiceImpl : ModelService {
 
         // Auto extract single result to the content
         return if (results.size == 1) {
-            return results.values.toList()[0]
+            results.values.toList()[0]
         } else {
             Page(listOf(results))
         }
@@ -53,6 +53,7 @@ class ModelServiceImpl : ModelService {
     }
 
     fun count(query: Definition.Query): Long {
+        // TODO Count the query
         return 0
     }
 }
