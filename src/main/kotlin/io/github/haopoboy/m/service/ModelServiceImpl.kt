@@ -21,7 +21,7 @@ class ModelServiceImpl : ModelService {
 
     override fun query(definition: Definition.Query, criteria: Map<String, Any>): Page {
         // Query
-        val query = if (!definition.jpql.isNullOrBlank()) {
+        val query = if (!definition.jpql.isBlank()) {
             entityManager.createQuery(definition.jpql)
         } else {
             entityManager.createNativeQuery(definition.native)
@@ -38,6 +38,7 @@ class ModelServiceImpl : ModelService {
         Queries.applyCriteria(query, criteria)
 
         // Page
+        @Suppress("UNCHECKED_CAST")
         val content = query.resultList as List<Any>
         return Page(content, pageable, count(definition))
 
