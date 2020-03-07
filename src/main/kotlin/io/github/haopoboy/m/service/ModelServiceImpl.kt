@@ -13,11 +13,10 @@ class ModelServiceImpl : ModelService {
     @Autowired
     private lateinit var entityManager: EntityManager
 
-    override fun query(queries: Map<String, Definition.Query>): Map<String, Page> {
+    override fun query(queries: Map<String, Definition.Query>, criteria: Map<String, Any>): Map<String, Page> {
         return queries
-                .map {
-                    it.key to query(it.value)
-                }.toMap()
+                .map { it.key to query(it.value, criteria) }
+                .toMap()
     }
 
     override fun query(definition: Definition.Query, criteria: Map<String, Any>): Page {
