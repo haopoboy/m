@@ -8,10 +8,19 @@ class Definitions {
 
     companion object {
 
-        val objectMapper = ObjectMapper()
+        private val objectMapper = ObjectMapper()
 
         fun isNotEmpty(map: Map<*, *>?): Boolean {
             return (map != null) && map.isNotEmpty()
+        }
+
+        fun initialize(definition: Definition) {
+            definition.persistent?.let { persistent ->
+                val properties = persistent.properties.mapValues {
+                    it.value ?: Definition.Persistent.Property()
+                }
+                persistent.properties = properties
+            }
         }
 
         fun validate(definition: Definition) {

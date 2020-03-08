@@ -1,0 +1,5 @@
+# Enable persisting
+persistent:
+  properties:
+    uuid:
+

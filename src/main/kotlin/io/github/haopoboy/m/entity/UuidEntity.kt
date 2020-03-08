@@ -1,12 +1,13 @@
 package io.github.haopoboy.m.entity
 
+import java.io.Serializable
 import java.util.*
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.MappedSuperclass
 
 @MappedSuperclass
-open class UuidEntity(@Id @GeneratedValue(generator = "uuid2") var uuid: UUID? = null) {
+open class UuidEntity(@Id @GeneratedValue(generator = "uuid2") var uuid: UUID? = null) : Serializable {
 
     override fun toString(): String {
         return uuid.toString()

@@ -38,6 +38,22 @@ class DefinitionsUnitTest {
     }
 
     @Test
+    fun persistentWithPivots() {
+        val d = from("""
+            persistent:
+              entity: io.github.haopoboy.m.entity.Person
+            pivots:
+              first:
+                jpql: >
+                  select from
+              second:
+                jpql: >
+                  select from
+        """.trimIndent())
+        assertThat(d.pivots).containsKeys("first", "second")
+    }
+
+    @Test
     fun queries() {
         val d = from("""
             queries:
@@ -50,6 +66,34 @@ class DefinitionsUnitTest {
 
         val list = d.queries?.get("list")
         assertThat(list?.jpql).isEqualTo("select from")
+    }
+
+    @Test
+    fun queriesWithPivots() {
+        val d = from("""
+            queries:
+              list:
+                jpql: >
+                  select from
+                pivots:
+                  first:
+                    jpql: >
+                      select from  
+            pivots:
+              third:
+                jpql: >
+                  select from
+              fourth:
+                jpql: >
+                  select from
+        """.trimIndent())
+
+        assertThat(d.queries).containsKeys("list")
+        assertThat(d.pivots).containsKeys("third", "fourth")
+
+        val list = d.queries["list"] ?: error("List should not be null")
+        assertThat(list.jpql.trim()).isEqualTo("select from")
+        assertThat(list.pivots).containsKeys("first")
     }
 
     private fun from(value: String) = Definitions.fromYaml(value)

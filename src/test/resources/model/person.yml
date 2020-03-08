@@ -1,0 +1,32 @@
+# Enable persisting
+persistent:
+#  extendsFrom: uuidEntity
+  entity: io.github.haopoboy.m.entity.Person
+  properties:
+    name:
+
+# Enable querying
+queries:
+  list:
+    jpql: >
+      select new Map(
+        p.name as name
+      ) from Person p
+    appends:
+      - statement: WHERE true=true
+    pivots:
+      state:
+        extractFirst: true
+        jpql: >
+          select new Map(
+            count(p) as count
+          ) from Person p
+
+# For all queries
+pivots:
+  current:
+    jpql: >
+      select new Map(
+        count(r) as count
+      ) from Resource r
+      where r.content = :content

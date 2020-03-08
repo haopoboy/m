@@ -30,6 +30,7 @@ class ResourceServiceImpl : ResourceService {
         val model = Yaml().load(content) as Map<String, Object>
         val definition = objectMapper.convertValue(model, Definition::class.java)
         Definitions.validate(definition)
+        Definitions.initialize(definition)
         return definition
     }
 }

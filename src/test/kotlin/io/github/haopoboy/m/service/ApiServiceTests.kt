@@ -32,8 +32,8 @@ class ApiServiceTests {
 
     @Test
     fun queries() {
-        val page = impl?.query()
-        assertThat(page?.values?.first()).extracting("name").contains("resource", "resourceMultiple")
+        val page = impl?.query()!!.values.first()
+        assertThat(page).extracting("name").contains("resource", "resourceMultiple")
     }
 
     @Test
@@ -43,8 +43,8 @@ class ApiServiceTests {
 
     @Test
     fun queriesMultiple() {
-        val page = implMultiple?.query()
-        println(page)
+        val map = implMultiple?.query()!!
+        println(map)
     }
 
 }

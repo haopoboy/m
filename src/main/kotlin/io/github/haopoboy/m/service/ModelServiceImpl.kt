@@ -2,16 +2,26 @@ package io.github.haopoboy.m.service
 
 import io.github.haopoboy.m.model.Definition
 import io.github.haopoboy.m.model.Page
+import io.github.haopoboy.m.util.Entities
 import io.github.haopoboy.m.util.Queries
+import org.springframework.beans.BeanWrapper
+import org.springframework.beans.BeanWrapperImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.support.Repositories
 import org.springframework.stereotype.Service
+import java.io.Serializable
 import javax.persistence.EntityManager
+import javax.persistence.Query
 
 @Service
 class ModelServiceImpl : ModelService {
 
     @Autowired
     private lateinit var entityManager: EntityManager
+
+    @Autowired
+    private lateinit var repositories: Repositories
 
     override fun query(queries: Map<String, Definition.Query>, criteria: Map<String, Any>): Map<String, Page> {
         return queries
@@ -20,31 +30,26 @@ class ModelServiceImpl : ModelService {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun query(definition: Definition.Query, criteria: Map<String, Any>): Page {
-        // Query
-        val query = if (!definition.jpql.isBlank()) {
-            entityManager.createQuery(definition.jpql)
-        } else {
-            entityManager.createNativeQuery(definition.native)
-        }
+    override fun query(query: Definition.Query, criteria: Map<String, Any>): Page {
+        val emQuery = createQuery(query)
 
         // Pageable
-        val pageable = definition.pageable
+        val pageable = query.pageable
         if (pageable.isPaged) {
-            query.firstResult = pageable.pageNumber
-            query.maxResults = pageable.pageSize
+            emQuery.firstResult = pageable.pageNumber
+            emQuery.maxResults = pageable.pageSize
         }
 
         // Criteria
-        Queries.applyCriteria(query, criteria)
+        Queries.applyCriteria(emQuery, criteria)
 
         // Page with pivots
         val content = injectPivots(
-                query.resultList as List<Map<String, Any>>,
+                emQuery.resultList as List<Map<String, Any>>,
                 criteria,
-                definition.pivots
+                query.pivots
         )
-        return Page(content, pageable, count(definition))
+        return Page(content, pageable, count(query))
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -72,8 +77,68 @@ class ModelServiceImpl : ModelService {
         }
     }
 
+    fun createQuery(query: Definition.Query): Query {
+        val statements = query.appends.joinToString(",") { it.statement }
+        return if (query.jpql.isNotBlank()) {
+            entityManager.createQuery("""
+                ${query.jpql}
+                $statements
+            """.trimIndent())
+        } else {
+            entityManager.createNativeQuery("""
+                ${query.native}
+                $statements
+            """.trimIndent())
+        }
+    }
+
     fun count(query: Definition.Query): Long {
-        // TODO Count the query
-        return 0
+        val statements = query.appends.joinToString(",") { it.statement }
+        val countQuery = if (query.jpql.isNotBlank()) {
+            entityManager.createQuery("""
+                ${Queries.replaceAsCountQuery(query.jpql)}
+                $statements
+            """.trimIndent())
+        } else {
+            entityManager.createNativeQuery("""
+                ${Queries.replaceAsCountQuery(query.native)}
+                $statements
+            """.trimIndent())
+        }
+        return countQuery.singleResult as Long
+    }
+
+    override fun save(persistent: Definition.Persistent, obj: Any) {
+        val source = BeanWrapperImpl(obj)
+        val entityClass = persistent.entity!!
+        val id = getId(entityClass, source)
+
+        @Suppress("UNCHECKED_CAST")
+        val repo: CrudRepository<Serializable, Serializable> = repositories.getRepositoryFor(entityClass).get()
+                as CrudRepository<Serializable, Serializable>
+
+        val target = if (null != id && repo.existsById(id)) {
+            BeanWrapperImpl()
+        } else {
+            BeanWrapperImpl(entityClass)
+        }
+
+        convertValues(persistent.properties, source, target)
+        repo.save(target.wrappedInstance as Serializable)
+    }
+
+    fun getId(entity: Class<*>, wrapper: BeanWrapper): Serializable? {
+        val name = Entities.getIdName(entity)
+        return wrapper.getPropertyValue(name) as Serializable?
+    }
+
+    fun convertValues(properties: Map<String, Definition.Persistent.Property?>, source: BeanWrapper, target: BeanWrapper) {
+        properties.filter {
+            !(it.value?.readonly
+                    ?: error("Property '${it.key}' should not be null, call Definitions.initialize() first"))
+        }.keys.forEach {
+            val value = source.getPropertyValue(it)
+            target.setPropertyValue(it, value)
+        }
     }
 }
