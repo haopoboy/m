@@ -14,7 +14,11 @@ cache:
     - mvn $MAVEN_CLI_OPTS verify -Dgpg.skip
     - mvn sonar:sonar -Dsonar.projectKey=haopoboy_myspring -Dsonar.organization=haopoboy
       -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN -Dsonar.branch.name=$CI_COMMIT_REF_NAME
-
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+        - target/failsafe-reports/TEST-*.xml
 
 # Verify merge requests using JDK8
 verify:jdk8:
