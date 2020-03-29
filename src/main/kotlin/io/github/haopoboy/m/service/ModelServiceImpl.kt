@@ -49,7 +49,7 @@ class ModelServiceImpl : ModelService {
                 criteria,
                 query.pivots
         )
-        return Page(content, pageable, count(query))
+        return Page(content, pageable, count(query, criteria))
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -92,7 +92,7 @@ class ModelServiceImpl : ModelService {
         }
     }
 
-    fun count(query: Definition.Query): Long {
+    fun count(query: Definition.Query, criteria: Map<String, Any>): Long {
         val statements = query.appends.joinToString(",") { it.statement }
         val countQuery = if (query.jpql.isNotBlank()) {
             entityManager.createQuery("""
@@ -105,6 +105,8 @@ class ModelServiceImpl : ModelService {
                 $statements
             """.trimIndent())
         }
+
+        Queries.applyCriteria(countQuery, criteria)
         return countQuery.singleResult as Long
     }
 
