@@ -1,6 +1,5 @@
 package io.github.haopoboy.m.util
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.haopoboy.m.model.Definition
 import org.yaml.snakeyaml.Yaml
 
@@ -8,7 +7,7 @@ class Definitions {
 
     companion object {
 
-        private val objectMapper = ObjectMapper()
+        private val objectMapper = Commons.OBJECT_MAPPER
 
         fun isNotEmpty(map: Map<*, *>?): Boolean {
             return (map != null) && map.isNotEmpty()
