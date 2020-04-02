@@ -13,7 +13,7 @@ queries:
         p.name as name
       ) from Person p
     appends:
-      - statement: WHERE true=true
+      - statement: where true=true
     pivots:
       state:
         extractFirst: true
