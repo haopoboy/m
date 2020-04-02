@@ -9,25 +9,25 @@ class QueriesUnitTest {
     fun replaceAsCountQuery() {
         "select new Map(p.name AS name) from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) from")
+                    .contains("select count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
         "select new Map(p.name AS name, p.name AS another) from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) from")
+                    .contains("select count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
         "select p.name from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) from")
+                    .contains("select count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
         "select p.name AS name from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) from")
+                    .contains("select count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
@@ -35,14 +35,14 @@ class QueriesUnitTest {
         // Native
         "select p.name from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) from")
+                    .contains("select count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
 
         "select p.name AS name from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) from")
+                    .contains("select count(*) from")
                     .contains("Person p")
         }
 
@@ -52,13 +52,13 @@ class QueriesUnitTest {
     fun replaceAsCountQueryWithSubQuery() {
         """
             select new Map(p.name AS name) from Person p
-            WHERE exists(select pp from Person pp WHERE pp.uuid = p.uuid)
+            where exists(select pp from Person pp where pp.uuid = p.uuid)
         """.trimIndent().apply {
             assertThat(Queries.replaceAsCountQuery(this))
                     .contains("select count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
-                    .contains("exists(select pp from Person pp WHERE pp.uuid = p.uuid)")
+                    .contains("exists(select pp from Person pp where pp.uuid = p.uuid)")
         }
     }
 
@@ -66,13 +66,13 @@ class QueriesUnitTest {
     fun replaceAsCountQueryWithManyFromOfNames() {
         """
             select new Map(p.name AS fromName) from Person p
-            WHERE exists(select pp from Person pp WHERE pp.uuid = p.uuid)
+            where exists(select pp from Person pp where pp.uuid = p.uuid)
         """.trimIndent().apply {
             assertThat(Queries.replaceAsCountQuery(this))
                     .doesNotContain("select new Map(p.name AS fromName)")
                     .contains("select count(*) from")
                     .contains("Person p")
-                    .contains("WHERE exists(select pp from Person pp WHERE pp.uuid = p.uuid)")
+                    .contains("where exists(select pp from Person pp where pp.uuid = p.uuid)")
         }
     }
 }

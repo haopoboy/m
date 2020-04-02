@@ -16,8 +16,8 @@ class Queries {
         fun replaceAsCountQuery(query: String): String {
             val statements = query.split(REPLACE_REGEX)
             return """
-                SELECT count(*) FROM
-                ${statements.subList(1, statements.size).joinToString("FROM")}
+                select count(*) from
+                ${statements.subList(1, statements.size).joinToString("from")}
             """.trimIndent()
         }
     }
