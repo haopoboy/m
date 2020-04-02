@@ -12,6 +12,7 @@ queries:
         r.name as name,
         r.content as content
       ) from Resource r
+      where (:name is null or r.name = :name)
     pivots:
       current:
         jpql: >
