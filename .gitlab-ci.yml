@@ -12,7 +12,7 @@ cache:
   stage: test
   script:
     - mvn $MAVEN_CLI_OPTS verify -Dgpg.skip
-    - mvn sonar:sonar -Dsonar.projectKey=haopoboy_myspring -Dsonar.organization=haopoboy
+    - mvn sonar:sonar -Dsonar.projectKey=haopoboy_mproject -Dsonar.organization=haopoboy
       -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN -Dsonar.branch.name=$CI_COMMIT_REF_NAME
   artifacts:
     reports:
