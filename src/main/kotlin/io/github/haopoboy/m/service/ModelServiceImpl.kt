@@ -23,14 +23,14 @@ class ModelServiceImpl : ModelService {
     @Autowired
     private lateinit var repositories: Repositories
 
-    override fun query(queries: Map<String, Definition.Query>, criteria: Map<String, Any>): Map<String, Page> {
+    override fun query(queries: Map<String, Definition.Query>, criteria: Map<String, Any?>): Map<String, Page> {
         return queries
                 .map { it.key to query(it.value, criteria) }
                 .toMap()
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun query(query: Definition.Query, criteria: Map<String, Any>): Page {
+    override fun query(query: Definition.Query, criteria: Map<String, Any?>): Page {
         val emQuery = createQuery(query)
 
         // Pageable
@@ -42,10 +42,10 @@ class ModelServiceImpl : ModelService {
 
         // Criteria
         Queries.applyCriteria(emQuery, criteria)
-
+        val resultList = queryForList(query, emQuery)
         // Page with pivots
         val content = injectPivots(
-                emQuery.resultList as List<Map<String, Any>>,
+                resultList,
                 criteria,
                 query.pivots
         )
@@ -53,10 +53,22 @@ class ModelServiceImpl : ModelService {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun injectPivots(content: List<Map<String, Any>>,
-                     criteria: Map<String, Any>,
+    fun queryForList(query: Definition.Query, emQuery: Query): List<Map<String, Any?>> {
+        val resultList = emQuery.resultList
+        return if (query.native.isNotBlank()) {
+            resultList.map {
+                (listOf("name", "content") zip it as Array<Any?>).toMap()
+            }
+        } else {
+            resultList as List<Map<String, Any?>>
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun injectPivots(content: List<Map<String, Any?>>,
+                     criteria: Map<String, Any?>,
                      pivots: Map<String, Definition.Query>
-    ): List<Map<String, Any>> {
+    ): List<Map<String, Any?>> {
         return content.map { row ->
             val newCriteria = criteria.toMutableMap().apply {
                 this.putAll(row)
@@ -92,7 +104,7 @@ class ModelServiceImpl : ModelService {
         }
     }
 
-    fun count(query: Definition.Query, criteria: Map<String, Any>): Long {
+    fun count(query: Definition.Query, criteria: Map<String, Any?>): Long {
         val statements = query.appends.joinToString(",") { it.statement }
         val countQuery = if (query.jpql.isNotBlank()) {
             entityManager.createQuery("""
@@ -107,7 +119,7 @@ class ModelServiceImpl : ModelService {
         }
 
         Queries.applyCriteria(countQuery, criteria)
-        return countQuery.singleResult as Long
+        return (countQuery.singleResult as Number).toLong()
     }
 
     override fun save(persistent: Definition.Persistent, obj: Any) {
