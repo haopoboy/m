@@ -7,42 +7,42 @@ class QueriesUnitTest {
 
     @Test
     fun replaceAsCountQuery() {
-        "SELECT new Map(p.name AS name) FROM Person p".apply {
+        "select new Map(p.name AS name) from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) FROM")
+                    .contains("SELECT count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
-        "SELECT new Map(p.name AS name, p.name AS another) FROM Person p".apply {
+        "select new Map(p.name AS name, p.name AS another) from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) FROM")
+                    .contains("SELECT count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
-        "SELECT p.name FROM Person p".apply {
+        "select p.name from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) FROM")
+                    .contains("SELECT count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
-        "SELECT p.name AS name FROM Person p".apply {
+        "select p.name AS name from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) FROM")
+                    .contains("SELECT count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
 
         // Native
-        "SELECT p.name FROM Person p".apply {
+        "select p.name from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) FROM")
+                    .contains("SELECT count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
         }
 
-        "SELECT p.name AS name FROM Person p".apply {
+        "select p.name AS name from Person p".apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) FROM")
+                    .contains("SELECT count(*) from")
                     .contains("Person p")
         }
 
@@ -51,14 +51,28 @@ class QueriesUnitTest {
     @Test
     fun replaceAsCountQueryWithSubQuery() {
         """
-            SELECT new Map(p.name AS name) FROM Person p
-            WHERE exists(SELECT pp FROM Person pp WHERE pp.uuid = p.uuid)
+            select new Map(p.name AS name) from Person p
+            WHERE exists(select pp from Person pp WHERE pp.uuid = p.uuid)
         """.trimIndent().apply {
             assertThat(Queries.replaceAsCountQuery(this))
-                    .contains("SELECT count(*) FROM")
+                    .contains("select count(*) from")
                     .doesNotContain("p.name")
                     .contains("Person p")
-                    .contains("exists(SELECT pp FROM Person pp WHERE pp.uuid = p.uuid)")
+                    .contains("exists(select pp from Person pp WHERE pp.uuid = p.uuid)")
+        }
+    }
+
+    @Test
+    fun replaceAsCountQueryWithManyFromOfNames() {
+        """
+            select new Map(p.name AS fromName) from Person p
+            WHERE exists(select pp from Person pp WHERE pp.uuid = p.uuid)
+        """.trimIndent().apply {
+            assertThat(Queries.replaceAsCountQuery(this))
+                    .doesNotContain("select new Map(p.name AS fromName)")
+                    .contains("select count(*) from")
+                    .contains("Person p")
+                    .contains("WHERE exists(select pp from Person pp WHERE pp.uuid = p.uuid)")
         }
     }
 }

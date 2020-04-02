@@ -5,7 +5,7 @@ import javax.persistence.Query
 class Queries {
 
     companion object {
-        private val REPLACE_REGEX = "(?i)FROM".toRegex()
+        private val REPLACE_REGEX = "(?i)\\bFROM\\b".toRegex()
 
         fun applyCriteria(query: Query, criteria: Map<String, Any?>) {
             query.parameters.forEach {
