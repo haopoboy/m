@@ -48,9 +48,8 @@ class ResourceServiceTests {
         assertThat(resource.persistent?.entity).isEqualTo(Resource::class.java)
 
         val queries = resource.queries
-        assertThat(queries).isNotEmpty.containsKeys("list", "nativeList")
+        assertThat(queries).isNotEmpty.containsKeys("list")
         assertThat(queries["list"]?.jpql).isNotBlank()
-        assertThat(queries["nativeList"]?.native).isNotBlank()
 
         val pivots = resource.pivots
         assertThat(pivots).isNotEmpty
