@@ -128,7 +128,8 @@ class ModelServiceImpl : ModelService {
         val id = getId(entityClass, source)
 
         @Suppress("UNCHECKED_CAST")
-        val repo: CrudRepository<Serializable, Serializable> = repositories.getRepositoryFor(entityClass).get()
+        val repo: CrudRepository<Serializable, Serializable> = repositories.getRepositoryFor(entityClass)
+                .orElseThrow { error("Repository for $entityClass not found") }
                 as CrudRepository<Serializable, Serializable>
 
         val target = if (null != id && repo.existsById(id)) {
