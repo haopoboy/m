@@ -139,7 +139,8 @@ class ModelServiceImpl : ModelService {
         }
 
         convertValues(persistent.properties, source, target)
-        repo.save(target.wrappedInstance as Serializable)
+        val persisted = repo.save(target.wrappedInstance as Serializable)
+        convertValues(persistent.properties, BeanWrapperImpl(persisted), source)
     }
 
     fun getId(entity: Class<*>, wrapper: BeanWrapper): Serializable? {
