@@ -2,11 +2,16 @@ package io.github.haopoboy.m.service
 
 import io.github.haopoboy.m.model.Definition
 import io.github.haopoboy.m.model.Page
+import io.github.haopoboy.m.util.Commons
 import io.github.haopoboy.m.util.Entities
 import io.github.haopoboy.m.util.Queries
 import org.springframework.beans.BeanWrapper
 import org.springframework.beans.BeanWrapperImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Example
+import org.springframework.data.domain.ExampleMatcher
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.support.Repositories
 import org.springframework.stereotype.Service
@@ -22,6 +27,20 @@ class ModelServiceImpl : ModelService {
 
     @Autowired
     private lateinit var repositories: Repositories
+
+    override fun get(persistent: Definition.Persistent, criteria: Map<String, Any?>, pageable: Pageable): org.springframework.data.domain.Page<Any> {
+        val entityClass = persistent.entity!!
+
+        @Suppress("UNCHECKED_CAST")
+        val repo = getRepositoryFor(entityClass)
+                as JpaRepository<Any, Serializable>
+        val entity = Commons.OBJECT_MAPPER.convertValue(criteria, entityClass)!!
+        return repo.findAll(
+                Example.of(entity, ExampleMatcher.matchingAny()
+                        .withIgnoreCase()
+                        .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+                ), pageable)
+    }
 
     override fun query(queries: Map<String, Definition.Query>, criteria: Map<String, Any?>): Map<String, Page> {
         return queries
@@ -128,8 +147,7 @@ class ModelServiceImpl : ModelService {
         val id = getId(entityClass, source)
 
         @Suppress("UNCHECKED_CAST")
-        val repo: CrudRepository<Serializable, Serializable> = repositories.getRepositoryFor(entityClass)
-                .orElseThrow { error("Repository for $entityClass not found") }
+        val repo: CrudRepository<Serializable, Serializable> = getRepositoryFor(entityClass)
                 as CrudRepository<Serializable, Serializable>
 
         val target = if (null != id && repo.existsById(id)) {
@@ -156,5 +174,10 @@ class ModelServiceImpl : ModelService {
             val value = source.getPropertyValue(it)
             target.setPropertyValue(it, value)
         }
+    }
+
+    fun getRepositoryFor(entityClass: Class<*>): Any {
+        return repositories.getRepositoryFor(entityClass)
+                .orElseThrow { error("Repository for $entityClass not found") }
     }
 }

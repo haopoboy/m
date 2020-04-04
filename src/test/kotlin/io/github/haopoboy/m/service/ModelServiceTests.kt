@@ -1,6 +1,7 @@
 package io.github.haopoboy.m.service
 
 import io.github.haopoboy.m.DataInitializer
+import io.github.haopoboy.m.entity.Resource
 import io.github.haopoboy.m.model.Definition
 import io.github.haopoboy.m.model.Page
 import org.assertj.core.api.Assertions.assertThat
@@ -26,6 +27,26 @@ class ModelServiceTests {
     @Before
     fun init() {
         initializer.import()
+    }
+
+    @Test
+    fun get() {
+        val persistent = Definition.Persistent(Resource::class.java)
+        impl.get(persistent).apply {
+            assertThat(this).isNotEmpty
+        }
+    }
+
+    @Test
+    fun getWithCriteria() {
+        val persistent = Definition.Persistent(Resource::class.java)
+        impl.get(persistent, mapOf("name" to "Nothing")).apply {
+            assertThat(this).isEmpty()
+        }
+        impl.get(persistent, mapOf("name" to "Res")).apply {
+            assertThat(this).`as`("Should be match with ignore case and containing")
+                    .isNotEmpty
+        }
     }
 
     @Test

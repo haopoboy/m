@@ -7,7 +7,7 @@ class Definition(var persistent: Persistent? = null,
                  var pivots: Map<String, Query> = mapOf()) {
 
     data class Persistent(
-            var entity: Class<Any>? = null,
+            var entity: Class<*>? = null,
             var properties: Map<String, Property?> = mapOf()
     ) {
         data class Property(var readonly: Boolean = false)
