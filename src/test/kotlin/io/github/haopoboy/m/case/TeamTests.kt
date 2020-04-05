@@ -14,7 +14,7 @@ import javax.transaction.Transactional
 @RunWith(SpringRunner::class)
 @SpringBootTest
 @Transactional
-class PersonTests {
+class TeamTests {
 
     @Autowired
     private lateinit var initializer: DataInitializer
@@ -22,34 +22,18 @@ class PersonTests {
     @Autowired
     private lateinit var api: ApiNamedService
 
-    private lateinit var impl: ApiNamedService.Person
-
     @Before
     fun init() {
         initializer.importHr()
-        impl = api.forPerson()
-    }
-
-    @Test
-    fun get() {
-        impl.get(mapOf("name" to "Heisenberg")).apply {
-            assertThat(this).extracting("name").containsOnly("Heisenberg")
-        }
-    }
-
-    @Test
-    fun findByName() {
-        impl.findByName("Heisenberg").apply {
-            assertThat(this).extracting("name").containsOnly("Heisenberg")
-        }
     }
 
     @Test
     fun query() {
-        impl.query().let {
-            val page = it["list"] ?: error("Page list not found")
-            assertThat(page.totalElements).isEqualTo(2)
-            assertThat(page.content).extracting("name").contains("Heisenberg", "Jesse")
+        api.forTeam().query().values.first().apply {
+            assertThat(this.content).extracting("name").contains("Breaking Bad")
+            assertThat(this.content)
+                    .flatExtracting("people")
+                    .extracting("name").contains("Heisenberg", "Jesse")
         }
     }
 }

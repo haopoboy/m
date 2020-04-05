@@ -3,6 +3,7 @@ persistent:
 #  extendsFrom: uuidEntity
   entity: io.github.haopoboy.m.entity.Person
   properties:
+    uuid:
     name:
 
 # Enable querying

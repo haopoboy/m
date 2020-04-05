@@ -7,10 +7,14 @@ import javax.persistence.Id
 import javax.persistence.MappedSuperclass
 
 @MappedSuperclass
-open class UuidEntity(@Id @GeneratedValue(generator = "uuid2") var uuid: UUID? = null) : Serializable {
+open class UuidEntity(
+        @Id @GeneratedValue(generator = "uuid2")
+        var uuid: UUID? = null,
+        open var name: String = ""
+) : Serializable {
 
     override fun toString(): String {
-        return "${this::class.java.simpleName} {uuid=$uuid}"
+        return "${this::class.java.simpleName} {name=$name, uuid=$uuid}"
     }
 
     override fun equals(other: Any?): Boolean {

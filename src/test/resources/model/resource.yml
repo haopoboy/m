@@ -2,6 +2,8 @@
 persistent:
   entity: io.github.haopoboy.m.entity.Resource
   properties:
+    uuid:
+    name:
     content:
 
 # Enable querying

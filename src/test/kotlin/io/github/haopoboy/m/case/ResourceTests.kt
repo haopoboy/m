@@ -14,7 +14,7 @@ import javax.transaction.Transactional
 @RunWith(SpringRunner::class)
 @SpringBootTest
 @Transactional
-class PersonTests {
+class ResourceTests {
 
     @Autowired
     private lateinit var initializer: DataInitializer
@@ -22,25 +22,25 @@ class PersonTests {
     @Autowired
     private lateinit var api: ApiNamedService
 
-    private lateinit var impl: ApiNamedService.Person
+    private lateinit var impl: ApiNamedService.Resource
 
     @Before
     fun init() {
-        initializer.importHr()
-        impl = api.forPerson()
+        initializer.import()
+        impl = api.forResource()
     }
 
     @Test
     fun get() {
-        impl.get(mapOf("name" to "Heisenberg")).apply {
-            assertThat(this).extracting("name").containsOnly("Heisenberg")
+        impl.get(mapOf("name" to "resource")).apply {
+            assertThat(this).extracting("name").containsOnlyOnce("resource")
         }
     }
 
     @Test
     fun findByName() {
-        impl.findByName("Heisenberg").apply {
-            assertThat(this).extracting("name").containsOnly("Heisenberg")
+        impl.findByName("resource").apply {
+            assertThat(this).extracting("name").containsOnlyOnce("resource")
         }
     }
 
@@ -48,8 +48,8 @@ class PersonTests {
     fun query() {
         impl.query().let {
             val page = it["list"] ?: error("Page list not found")
-            assertThat(page.totalElements).isEqualTo(2)
-            assertThat(page.content).extracting("name").contains("Heisenberg", "Jesse")
+            assertThat(page.content).extracting("name")
+                    .contains("resource", "resourceMultiple", "resourceNative")
         }
     }
 }

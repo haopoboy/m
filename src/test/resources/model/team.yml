@@ -1,0 +1,27 @@
+# Enable persisting
+persistent:
+  #  extendsFrom: uuidEntity
+  entity: io.github.haopoboy.m.entity.Team
+  properties:
+    uuid:
+    name:
+    people:
+
+# Enable querying
+queries:
+  list:
+    jpql: >
+      select new Map(
+        t.uuid as uuid,
+        t.name as name
+      ) from Team t
+    pivots:
+      people:
+        jpql: >
+          select new Map(
+            p.uuid as uuid,
+            p.name as name
+          ) from Team t
+          left join t.people p
+          where t.uuid = :uuid
+
