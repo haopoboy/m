@@ -29,17 +29,19 @@ class ModelServiceImpl : ModelService {
     private lateinit var repositories: Repositories
 
     override fun get(persistent: Definition.Persistent, criteria: Map<String, Any?>, pageable: Pageable): org.springframework.data.domain.Page<Any> {
-        val entityClass = persistent.entity!!
-
-        @Suppress("UNCHECKED_CAST")
-        val repo = getRepositoryFor(entityClass)
-                as JpaRepository<Any, Serializable>
-        val entity = Commons.OBJECT_MAPPER.convertValue(criteria, entityClass)!!
-        return repo.findAll(
-                Example.of(entity, ExampleMatcher.matchingAny()
-                        .withIgnoreCase()
-                        .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+        val propertiesAction = PropertiesAction(persistent.properties)
+        propertiesAction.checkCriteria(criteria)
+        val entityClassAction = EntityClassAction(persistent.entity!!)
+        val page = entityClassAction.getRepository().findAll(
+                Example.of(entityClassAction.convertValue(criteria),
+                        ExampleMatcher.matchingAny()
+                                .withIgnoreCase()
+                                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
                 ), pageable)
+        // Filter page by properties
+        return page.map {
+            propertiesAction.convertValues(BeanWrapperImpl(it), BeanWrapperImpl(entityClassAction.clazz)).wrappedInstance
+        }
     }
 
     override fun query(queries: Map<String, Definition.Query>, criteria: Map<String, Any?>): Map<String, Page> {
@@ -166,7 +168,8 @@ class ModelServiceImpl : ModelService {
         return wrapper.getPropertyValue(name) as Serializable?
     }
 
-    fun convertValues(properties: Map<String, Definition.Persistent.Property?>, source: BeanWrapper, target: BeanWrapper) {
+    fun convertValues(properties: Map<String, Definition.Persistent.Property?>,
+                      source: BeanWrapper, target: BeanWrapper): BeanWrapper {
         properties.filter {
             !(it.value?.readonly
                     ?: error("Property '${it.key}' should not be null, call Definitions.initialize() first"))
@@ -174,10 +177,30 @@ class ModelServiceImpl : ModelService {
             val value = source.getPropertyValue(it)
             target.setPropertyValue(it, value)
         }
+        return target
     }
 
     fun getRepositoryFor(entityClass: Class<*>): Any {
         return repositories.getRepositoryFor(entityClass)
                 .orElseThrow { error("Repository for $entityClass not found") }
+    }
+
+    fun checkCriteria(properties: Map<String, Definition.Persistent.Property?>, criteria: Map<String, Any?>) {
+        criteria.keys.forEach {
+            check(properties.keys.contains(it)) {
+                "Criterion $it does not exist in ${properties.keys}"
+            }
+        }
+    }
+
+    inner class EntityClassAction(val clazz: Class<*>) {
+        @Suppress("UNCHECKED_CAST")
+        fun getRepository() = getRepositoryFor(clazz) as JpaRepository<Any, Serializable>
+        fun convertValue(source: Any) = Commons.OBJECT_MAPPER.convertValue(source, clazz)
+    }
+
+    inner class PropertiesAction(val properties: Map<String, Definition.Persistent.Property?>) {
+        fun checkCriteria(criteria: Map<String, Any?>) = checkCriteria(properties, criteria)
+        fun convertValues(source: BeanWrapper, target: BeanWrapper) = convertValues(properties, source, target)
     }
 }

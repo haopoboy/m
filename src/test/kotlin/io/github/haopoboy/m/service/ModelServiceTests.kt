@@ -39,13 +39,25 @@ class ModelServiceTests {
 
     @Test
     fun getWithCriteria() {
-        val persistent = Definition.Persistent(Resource::class.java)
-        impl.get(persistent, mapOf("name" to "Nothing")).apply {
-            assertThat(this).isEmpty()
+        Definition.Persistent(Resource::class.java, mapOf(
+                "name" to Definition.Persistent.Property()
+        )).apply {
+            impl.get(this, mapOf("name" to "Nothing")).apply {
+                assertThat(this).isEmpty()
+            }
+            impl.get(this, mapOf("name" to "Res")).apply {
+                assertThat(this).`as`("Should be match with ignore case and containing")
+                        .isNotEmpty
+            }
         }
-        impl.get(persistent, mapOf("name" to "Res")).apply {
-            assertThat(this).`as`("Should be match with ignore case and containing")
-                    .isNotEmpty
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun getWithCriteriaWhichAreNotMapped() {
+        Definition.Persistent(Resource::class.java).apply {
+            impl.get(this, mapOf("name" to "Nothing")).apply {
+                assertThat(this).isEmpty()
+            }
         }
     }
 
