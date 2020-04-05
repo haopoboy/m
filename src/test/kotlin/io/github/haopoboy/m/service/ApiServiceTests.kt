@@ -34,9 +34,25 @@ class ApiServiceTests {
     }
 
     @Test
+    fun get() {
+        impl.get().apply {
+            assertThat(this).extracting("name")
+                    .contains("resource", "resourceMultiple", "resourceNative")
+        }
+    }
+
+    @Test
     fun query() {
         impl.query().values.first().apply {
-            assertThat(this).extracting("name").contains("resource", "resourceMultiple")
+            assertThat(this).extracting("name")
+                    .contains("resource", "resourceMultiple", "resourceNative")
+        }
+    }
+
+    @Test
+    fun queryMultiple() {
+        multipleImpl.query().apply {
+            assertThat(this).containsKeys("list", "nativeList")
         }
     }
 
@@ -57,12 +73,4 @@ class ApiServiceTests {
             assertThat(this.values.first().content).hasSize(1)
         }
     }
-
-    @Test
-    fun queryMultiple() {
-        multipleImpl.query().apply {
-            assertThat(this).containsKeys("list", "nativeList")
-        }
-    }
-
 }
