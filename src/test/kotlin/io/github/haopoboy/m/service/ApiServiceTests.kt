@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 
 /**
- * See [package case][io.github.haopoboy.m.case] for testing and studying.
+ * See [package case][io.github.haopoboy.m.showcase] for testing and studying.
  */
 @RunWith(SpringRunner::class)
 @SpringBootTest

@@ -4,6 +4,6 @@ import javax.persistence.Column
 import javax.persistence.Entity
 
 @Entity
-class Resource(override var name: String = "",
-               @Column(columnDefinition = "text")
-               var content: String = "") : UuidEntity()
+data class Resource(override var name: String? = null,
+                    @Column(columnDefinition = "text")
+                    var content: String? = null) : UuidEntity()

@@ -20,7 +20,7 @@ class ResourceServiceImpl : ResourceService {
     override fun getDefinition(name: String): Definition {
         val resource = repo.findByName(name)
         if (resource.isPresent) {
-            return toDefinition(resource.get().content)
+            return toDefinition(resource.get().content ?: "")
         } else {
             throw IllegalArgumentException("Resource $name not found")
         }

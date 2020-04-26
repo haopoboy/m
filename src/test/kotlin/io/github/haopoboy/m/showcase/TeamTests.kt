@@ -1,4 +1,4 @@
-package io.github.haopoboy.m.case
+package io.github.haopoboy.m.showcase
 
 import io.github.haopoboy.m.DataInitializer
 import io.github.haopoboy.m.service.ApiNamedService

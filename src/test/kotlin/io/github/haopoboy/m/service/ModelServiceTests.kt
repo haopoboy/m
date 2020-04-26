@@ -38,7 +38,7 @@ class ModelServiceTests {
     }
 
     @Test
-    fun getWithCriteria() {
+    fun getByCriteria() {
         Definition.Persistent(Resource::class.java, mapOf(
                 "name" to Definition.Persistent.Property()
         )).apply {
@@ -46,14 +46,16 @@ class ModelServiceTests {
                 assertThat(this).isEmpty()
             }
             impl.get(this, mapOf("name" to "Res")).apply {
-                assertThat(this).`as`("Should be match with ignore case and containing")
-                        .isNotEmpty
+                assertThat(this)
+                        .`as`("Should be match with ignore case and containing")
+                        .extracting("name")
+                        .containsOnly("resource", "resourceMultiple", "resourceNative")
             }
         }
     }
 
     @Test(expected = IllegalStateException::class)
-    fun getWithCriteriaWhichAreNotMapped() {
+    fun getByCriteriaWhichAreNotMapped() {
         Definition.Persistent(Resource::class.java).apply {
             impl.get(this, mapOf("name" to "Nothing")).apply {
                 assertThat(this).isEmpty()

@@ -1,4 +1,4 @@
-package io.github.haopoboy.m.case
+package io.github.haopoboy.m.showcase
 
 import io.github.haopoboy.m.DataInitializer
 import io.github.haopoboy.m.service.ApiNamedService
@@ -14,7 +14,7 @@ import javax.transaction.Transactional
 @RunWith(SpringRunner::class)
 @SpringBootTest
 @Transactional
-class ResourceTests {
+class PersonTests {
 
     @Autowired
     private lateinit var initializer: DataInitializer
@@ -22,25 +22,25 @@ class ResourceTests {
     @Autowired
     private lateinit var api: ApiNamedService
 
-    private lateinit var impl: ApiNamedService.Resource
+    private lateinit var impl: ApiNamedService.Person
 
     @Before
     fun init() {
-        initializer.import()
-        impl = api.forResource()
+        initializer.importHr()
+        impl = api.forPerson()
     }
 
     @Test
     fun get() {
-        impl.get(mapOf("name" to "resource")).apply {
-            assertThat(this).extracting("name").containsOnlyOnce("resource")
+        impl.get(mapOf("name" to "Heisenberg")).apply {
+            assertThat(this).extracting("name").containsOnly("Heisenberg")
         }
     }
 
     @Test
     fun findByName() {
-        impl.findByName("resource").apply {
-            assertThat(this).extracting("name").containsOnlyOnce("resource")
+        impl.findByName("Heisenberg").apply {
+            assertThat(this).extracting("name").containsOnly("Heisenberg")
         }
     }
 
@@ -48,8 +48,8 @@ class ResourceTests {
     fun query() {
         impl.query().let {
             val page = it["list"] ?: error("Page list not found")
-            assertThat(page.content).extracting("name")
-                    .contains("resource", "resourceMultiple", "resourceNative")
+            assertThat(page.totalElements).isEqualTo(2)
+            assertThat(page.content).extracting("name").contains("Heisenberg", "Jesse")
         }
     }
 }
