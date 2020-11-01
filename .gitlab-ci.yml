@@ -17,6 +17,10 @@ cache:
       junit:
         - target/surefire-reports/TEST-*.xml
         - target/failsafe-reports/TEST-*.xml
+  only:
+    - dev
+    - master
+    - merge_requests
 
 # Verify merge requests using JDK8
 verify:jdk8:
