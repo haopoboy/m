@@ -5,10 +5,12 @@ import io.github.haopoboy.m.model.Definition
 import io.github.haopoboy.m.repository.ResourceRepository
 import io.github.haopoboy.m.util.Definitions
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.stereotype.Service
 import org.yaml.snakeyaml.Yaml
 
 @Service
+@ConditionalOnClass(ResourceRepository::class)
 class ResourceServiceImpl : ResourceService {
 
     @Autowired
@@ -27,7 +29,7 @@ class ResourceServiceImpl : ResourceService {
     }
 
     fun toDefinition(content: String): Definition {
-        val model = Yaml().load(content) as Map<String, Object>
+        val model = Yaml().load(content) as Map<String, Any>
         val definition = objectMapper.convertValue(model, Definition::class.java)
         Definitions.validate(definition)
         Definitions.initialize(definition)
