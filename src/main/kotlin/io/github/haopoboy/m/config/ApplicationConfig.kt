@@ -2,7 +2,7 @@ package io.github.haopoboy.m.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.repository.support.Repositories
@@ -18,7 +18,7 @@ class ApplicationConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    fun repositories(applicationContext: AnnotationConfigApplicationContext): Repositories {
+    fun repositories(applicationContext: ApplicationContext): Repositories {
         return Repositories(applicationContext)
     }
 }
