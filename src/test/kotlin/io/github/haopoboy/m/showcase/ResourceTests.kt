@@ -45,7 +45,7 @@ class ResourceTests {
         impl.findByName("resource").apply {
             assertThat(this)
                     .extracting("name")
-                    .containsOnly("resource", "resourceMultiple", "resourceNative")
+                    .contains("resource", "resourceMultiple", "resourceNative")
         }
     }
 
@@ -55,7 +55,7 @@ class ResourceTests {
             val page = it["list"] ?: error("Page list not found")
             assertThat(page.content)
                     .extracting("name")
-                    .containsOnly("resource", "resourceMultiple", "resourceNative")
+                    .contains("resource", "resourceMultiple", "resourceNative")
         }
     }
 }
