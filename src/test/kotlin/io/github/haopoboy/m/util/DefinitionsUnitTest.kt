@@ -3,7 +3,7 @@ package io.github.haopoboy.m.util
 import io.github.haopoboy.m.entity.Person
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class DefinitionsUnitTest {
 

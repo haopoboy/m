@@ -2,12 +2,14 @@ package io.github.haopoboy.m.model
 
 import io.github.haopoboy.m.entity.Person
 import io.github.haopoboy.m.util.Definitions
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.ConstructorException
 
 
-class DefinitionUnitTests {
+class DefinitionUnitTest {
 
     @Test
     fun init() {
@@ -48,5 +50,18 @@ class DefinitionUnitTests {
 
         assertThat(d.entity).isEqualTo(Person::class.java)
         assertThat(d.properties).containsKey("name")
+    }
+
+    @Test
+    fun `should be thrown on nonexistent entity`() {
+        val yaml = """
+            entity: none.entity.Resource
+            properties:
+              content:
+        """.trimIndent()
+
+        Assertions.assertThatThrownBy {
+            Yaml().loadAs(yaml, Definition.Persistent::class.java)
+        }.isInstanceOf(ConstructorException::class.java)
     }
 }
