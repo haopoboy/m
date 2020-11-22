@@ -5,7 +5,8 @@ import io.github.haopoboy.m.entity.Resource
 import io.github.haopoboy.m.model.Definition
 import io.github.haopoboy.m.model.Page
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
+import org.assertj.core.api.Assertions.assertThatIllegalStateException
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,7 +22,7 @@ class ModelServiceTests {
     @Autowired
     private lateinit var initializer: DataInitializer
 
-    @BeforeAll
+    @BeforeEach
     fun init() {
         initializer.import()
     }
@@ -51,12 +52,13 @@ class ModelServiceTests {
         }
     }
 
-    //    @Test(expected = IllegalStateException::class)
     @Test
     fun getByCriteriaWhichAreNotMapped() {
-        Definition.Persistent(Resource::class.java).apply {
-            impl.get(this, mapOf("name" to "Nothing")).apply {
-                assertThat(this).isEmpty()
+        assertThatIllegalStateException().isThrownBy {
+            Definition.Persistent(Resource::class.java).apply {
+                impl.get(this, mapOf("name" to "Nothing")).apply {
+                    assertThat(this).isEmpty()
+                }
             }
         }
     }
