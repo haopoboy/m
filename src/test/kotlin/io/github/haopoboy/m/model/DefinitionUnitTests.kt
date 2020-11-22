@@ -3,7 +3,7 @@ package io.github.haopoboy.m.model
 import io.github.haopoboy.m.entity.Person
 import io.github.haopoboy.m.util.Definitions
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.yaml.snakeyaml.Yaml
 
 

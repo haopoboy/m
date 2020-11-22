@@ -5,15 +5,12 @@ import io.github.haopoboy.m.entity.Resource
 import io.github.haopoboy.m.model.Definition
 import io.github.haopoboy.m.model.Page
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 import javax.transaction.Transactional
 
-@RunWith(SpringRunner::class)
 @SpringBootTest
 @Transactional
 class ModelServiceTests {
@@ -24,7 +21,7 @@ class ModelServiceTests {
     @Autowired
     private lateinit var initializer: DataInitializer
 
-    @Before
+    @BeforeAll
     fun init() {
         initializer.import()
     }
@@ -54,7 +51,8 @@ class ModelServiceTests {
         }
     }
 
-    @Test(expected = IllegalStateException::class)
+    //    @Test(expected = IllegalStateException::class)
+    @Test
     fun getByCriteriaWhichAreNotMapped() {
         Definition.Persistent(Resource::class.java).apply {
             impl.get(this, mapOf("name" to "Nothing")).apply {
